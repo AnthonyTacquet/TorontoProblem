@@ -22,15 +22,14 @@ public class MyMoveOneRandomExamMove extends Move {
     private List<Student> students;
     @Override
     public double doMove(Solution solution) {
-        MySolution mySolution = ((MySolution) solution);
         this.timeSlots = solution.getTimeSlots();
-        this.exams = mySolution.getExams();
-        this.students = mySolution.getStudents();
+        this.exams = solution.getExams();
+        this.students = solution.getStudents();
 
         if (timeSlots == null || timeSlots.isEmpty() || exams == null || exams.isEmpty())
             return 0;
 
-        double originalCost = mySolution.getObjectiveValue();
+        double originalCost = solution.getObjectiveValue();
 
         // Find exams
         findExam();
@@ -45,7 +44,7 @@ public class MyMoveOneRandomExamMove extends Move {
         double costAfter = costAfter();
 
         delta = costAfter - costBefore;
-        //solution.setObjectiveValue(originalCost + delta);
+        solution.setObjectiveValue(originalCost + delta);
         return originalCost + delta;
     }
     // Same as absoluteEvaluation
@@ -54,7 +53,8 @@ public class MyMoveOneRandomExamMove extends Move {
         Map.Entry<Integer, Integer> tuple = indexForTimeSlots();
         int startIndex = tuple.getKey();
         int endIndex = tuple.getValue();
-
+        // Student count
+        int students = timeSlots.subList(startIndex, endIndex).stream().mapToInt(e -> e.getAllSIDInTimeSlot().size()).sum();
         // If timeslots next to each other
         // IMPORTANT, LOOPS ARE WORKING WITH INDEXES SO WE DON'T use -1 and < BUT <=
         if (endIndex - startIndex == 1){
@@ -81,14 +81,15 @@ public class MyMoveOneRandomExamMove extends Move {
                 }
             }
         }
-        return ((double) cost) / students.size();
+        return ((double) cost) / students;
     }
     private double costAfter(){
         int cost = 0;
         Map.Entry<Integer, Integer> tuple = indexForTimeSlots();
         int startIndex = tuple.getKey();
         int endIndex = tuple.getValue();
-
+        // Student count
+        int students = timeSlots.subList(startIndex, endIndex).stream().mapToInt(e -> e.getAllSIDInTimeSlot().size()).sum();
         // If timeslots next to each other
         // IMPORTANT, LOOPS ARE WORKING WITH INDEXES SO WE DON'T use -1 and < BUT <=
         if (endIndex - startIndex == 1){
@@ -116,7 +117,7 @@ public class MyMoveOneRandomExamMove extends Move {
             }
         }
 
-        return ((double) cost) / students.size();
+        return ((double) cost) / students;
     }
 
     private Map.Entry<Integer, Integer> indexForTimeSlots(){
@@ -202,7 +203,7 @@ public class MyMoveOneRandomExamMove extends Move {
         List<TimeSlot> timeSlotRevert = solution.getTimeSlots();
         moveExam(timeSlotRevert, timeSlotIdDestination, timeSlotIdOrigin, examId);
 
-        //solution.setObjectiveValue(solution.getObjectiveValue() - this.delta);
+        solution.setObjectiveValue(solution.getObjectiveValue() - this.delta);
         solution.setTimeSlots(timeSlotRevert);
     }
 }
