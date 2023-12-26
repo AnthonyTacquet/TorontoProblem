@@ -44,9 +44,10 @@ public class MySwapTwoRandomExamsMove extends Move {
         // calculate distance after swap
         double costAfter = costAfter();
 
-        delta = costAfter - costBefore;
-        solution.setObjectiveValue(originalCost + delta);
-        return originalCost + delta;
+        double newCost = ((originalCost * students.size()) - costBefore + costAfter) / students.size();
+        delta = newCost - originalCost;
+        solution.setObjectiveValue(newCost);
+        return newCost;
     }
     // Same as absoluteEvaluation
     private double costBefore(){
@@ -54,8 +55,6 @@ public class MySwapTwoRandomExamsMove extends Move {
         Map.Entry<Integer, Integer> tuple = indexForTimeSlots();
         int startIndex = tuple.getKey();
         int endIndex = tuple.getValue();
-        // Student count
-        int students = timeSlots.subList(startIndex, endIndex).stream().mapToInt(e -> e.getAllSIDInTimeSlot().size()).sum();
         // If timeslots next to each other
         // IMPORTANT, LOOPS ARE WORKING WITH INDEXES SO WE DON'T use -1 and < BUT <=
         if (endIndex - startIndex == 1){
@@ -82,7 +81,7 @@ public class MySwapTwoRandomExamsMove extends Move {
                 }
             }
         }
-        return ((double) cost) / students;
+        return cost;
     }
     private double costAfter(){
         int cost = 0;
@@ -90,7 +89,8 @@ public class MySwapTwoRandomExamsMove extends Move {
         int startIndex = tuple.getKey();
         int endIndex = tuple.getValue();
         // Student count
-        int students = timeSlots.subList(startIndex, endIndex).stream().mapToInt(e -> e.getAllSIDInTimeSlot().size()).sum();
+        Set<Integer> uniqueStudentIds = timeSlots.subList(startIndex, endIndex).stream().flatMap(e -> e.getAllSIDInTimeSlot().stream()).collect(Collectors.toSet());
+        int students = uniqueStudentIds.size();
         // If timeslots next to each other
         // IMPORTANT, LOOPS ARE WORKING WITH INDEXES SO WE DON'T use -1 and < BUT <=
         if (endIndex - startIndex == 1){
@@ -118,7 +118,7 @@ public class MySwapTwoRandomExamsMove extends Move {
             }
         }
 
-        return ((double) cost) / students;
+        return cost;
     }
 
     private Map.Entry<Integer, Integer> indexForTimeSlots(){

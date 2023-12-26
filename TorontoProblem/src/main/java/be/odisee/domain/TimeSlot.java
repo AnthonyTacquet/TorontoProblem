@@ -39,7 +39,7 @@ public class TimeSlot implements Serializable{
 	}
 
 	public List<Integer> getAllSIDInTimeSlot(){
-		return exams.stream().map(e -> e.getSID()).flatMap(List::stream).toList();
+		return exams.stream().map(Exam::getSID).flatMap(List::stream).distinct().toList();
 	}
 
 	@Override
