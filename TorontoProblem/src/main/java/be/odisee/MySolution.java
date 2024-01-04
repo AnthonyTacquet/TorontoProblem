@@ -31,8 +31,7 @@ public class MySolution implements Solution {
     // Fill the exams list in timeSlots with all the data, not yet optimal
     // Fill the first 10 exams, then order exams by amount how many timeslots they fit
     private void fillTimeSlots() {
-        List<Exam> tempExams = new ArrayList<>();
-        tempExams.addAll(exams);
+        List<Exam> tempExams = new ArrayList<>(exams);
 
         do {
             AddFirstFewExamsBasedOnScore(tempExams);
@@ -96,9 +95,13 @@ public class MySolution implements Solution {
     public Object clone() {
         MySolution mySolution = new MySolution(exams, timeSlots, students);
         List<TimeSlot> newTimeSlot = new ArrayList<>();
-        newTimeSlot.addAll(timeSlots);
+        for (TimeSlot originalTimeSlot : timeSlots) {
+            newTimeSlot.add(new TimeSlot(originalTimeSlot));
+        }
 
         mySolution.setTimeSlots(newTimeSlot);
+        mySolution.setExams(exams);
+        mySolution.setStudents(students);
         mySolution.setObjectiveValue(this.getObjectiveValue());
         return mySolution;
     }

@@ -30,16 +30,12 @@ public class MyMoveOneRandomExamMove extends Move {
             return 0;
 
         double originalCost = solution.getObjectiveValue();
-
         // Find exams
         findExam();
-
         // Calculate distance before item switch
         double costBefore = costBefore();
-
         // Swap two items in list
         moveExam(timeSlots, timeSlotIdOrigin, timeSlotIdDestination, examId);
-
         // calculate distance after swap
         double costAfter = costAfter();
 

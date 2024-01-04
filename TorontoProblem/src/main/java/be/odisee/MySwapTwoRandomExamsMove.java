@@ -31,25 +31,40 @@ public class MySwapTwoRandomExamsMove extends Move {
             return 0;
 
         double originalCost = solution.getObjectiveValue();
-
         // Find exams
         findExams();
-
         // Calculate distance before item switch
         double costBefore = costBefore();
-
         // Swap two items in list
         swapExams(timeSlots, timeSlotIdOne, timeSlotIdTwo, examIdOne, examIdTwo);
-
         // calculate distance after swap
         double costAfter = costAfter();
 
         double newCost = ((originalCost * students.size()) - costBefore + costAfter) / students.size();
         delta = newCost - originalCost;
-        solution.setObjectiveValue(newCost);
+        //solution.setObjectiveValue(newCost);
         return newCost;
     }
-    // Same as absoluteEvaluation
+
+    // Absolute Evaluation, TESTING
+    private double absoluteEvaluation(){
+        int cost = 0;
+        // Loop through each timeslot
+        // Stop looping one before the end, last timeslot can't calculate a cost
+        for (int i = 0; i < timeSlots.size() - 1; i++){
+            TimeSlot timeSlot = timeSlots.get(i);
+            // Loop through each student in this timeslot
+            for (int studentId : timeSlot.getAllSIDInTimeSlot()){
+                // Loop through the following timeslots
+                for (int j = i + 1; j < timeSlots.size(); j++){
+                    // If timeslot has the same student as the timeslot above, calculate cost
+                    if (timeSlots.get(j).getAllSIDInTimeSlot().stream().anyMatch(e -> e == studentId))
+                        cost += Helper.DistanceToCost(j - i);
+                }
+            }
+        }
+        return ((double) cost) / students.size();
+    }
     private double costBefore(){
         int cost = 0;
         Map.Entry<Integer, Integer> tuple = indexForTimeSlots();
@@ -88,9 +103,6 @@ public class MySwapTwoRandomExamsMove extends Move {
         Map.Entry<Integer, Integer> tuple = indexForTimeSlots();
         int startIndex = tuple.getKey();
         int endIndex = tuple.getValue();
-        // Student count
-        Set<Integer> uniqueStudentIds = timeSlots.subList(startIndex, endIndex).stream().flatMap(e -> e.getAllSIDInTimeSlot().stream()).collect(Collectors.toSet());
-        int students = uniqueStudentIds.size();
         // If timeslots next to each other
         // IMPORTANT, LOOPS ARE WORKING WITH INDEXES SO WE DON'T use -1 and < BUT <=
         if (endIndex - startIndex == 1){
@@ -117,7 +129,6 @@ public class MySwapTwoRandomExamsMove extends Move {
                 }
             }
         }
-
         return cost;
     }
 
@@ -221,7 +232,7 @@ public class MySwapTwoRandomExamsMove extends Move {
         List<TimeSlot> timeSlotRevert = solution.getTimeSlots();
         swapExams(timeSlotRevert, timeSlotIdOne, timeSlotIdTwo, examIdTwo, examIdOne);
 
-        solution.setObjectiveValue(solution.getObjectiveValue() - this.delta);
+        solution.setObjectiveValue(solution.getObjectiveValue() - delta);
         solution.setTimeSlots(timeSlotRevert);
     }
 }
