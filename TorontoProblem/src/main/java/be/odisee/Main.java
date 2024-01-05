@@ -12,7 +12,7 @@ import java.util.HashMap;
 public class Main {
     public static void main(String[] args) {
         DataReader parser = new DataReader("benchmarks/sta-f-83.crs", "benchmarks/sta-f-83.stu");
-        //DataReader parser = new DataReader("benchmarks/pur-s-93.crs", "benchmarks/pur-s-93.stu");
+        // DataReader parser = new DataReader("benchmarks/lse-f-91.crs", "benchmarks/lse-f-91.stu");
         SearchAlgorithm steepestDescent = new SteepestDescent(parser);
         //SearchAlgorithm lateAcceptance = new LateAcceptanceStrategy(parser);
         //SearchAlgorithm simulatedAnnealing = new SimulatedAnnealing(parser);

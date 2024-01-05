@@ -33,102 +33,40 @@ public class MyMoveOneRandomExamMove extends Move {
         // Find exams
         findExam();
         // Calculate distance before item switch
-        double costBefore = costBefore();
+        double costBefore = calculateCost();
         // Swap two items in list
         moveExam(timeSlots, timeSlotIdOrigin, timeSlotIdDestination, examId);
         // calculate distance after swap
-        double costAfter = costAfter();
+        double costAfter = calculateCost();
 
-        double newCost = ((originalCost * students.size()) - costBefore + costAfter) / students.size();
+        double newCost = ((originalCost * students.size()) + costAfter - costBefore) / students.size();
         delta = newCost - originalCost;
         solution.setObjectiveValue(newCost);
         return newCost;
     }
     // Same as absoluteEvaluation
-    private double costBefore(){
+    private double calculateCost(){
         int cost = 0;
-        Map.Entry<Integer, Integer> tuple = indexForTimeSlots();
-        int startIndex = tuple.getKey();
-        int endIndex = tuple.getValue();
-        // If timeslots next to each other
-        // IMPORTANT, LOOPS ARE WORKING WITH INDEXES SO WE DON'T use -1 and < BUT <=
-        if (endIndex - startIndex == 1){
-            TimeSlot timeSlot = timeSlots.get(startIndex);
-            TimeSlot timeSlotNext = timeSlots.get(endIndex);
-            for (int studentId : timeSlot.getAllSIDInTimeSlot()){
-                // If timeslot has the same student as the timeslot above, calculate cost
-                if (timeSlotNext.getAllSIDInTimeSlot().stream().anyMatch(e -> e == studentId))
-                    cost += Helper.DistanceToCost(endIndex - startIndex);
-            }
-        } else {
-            // Loop through each timeslot
-            // Stop looping one before the end, last timeslot can't calculate a cost
-            for (int i = startIndex; i < endIndex; i++){
-                TimeSlot timeSlot = timeSlots.get(i);
-                // Loop through each student in this timeslot
-                for (int studentId : timeSlot.getAllSIDInTimeSlot()){
-                    // Loop through the following timeslots
-                    for (int j = i + 1; j <= endIndex; j++){
-                        // If timeslot has the same student as the timeslot above, calculate cost
-                        if (timeSlots.get(j).getAllSIDInTimeSlot().stream().anyMatch(e -> e == studentId))
-                            cost += Helper.DistanceToCost(j - i);
-                    }
+        Set<Integer> studentsToCalculate = new HashSet<>();
+        studentsToCalculate.addAll(exams.stream().filter(e -> e.getID() == examId).findFirst().get().getSID()); // Add all students from first exam
+
+        // Loop through each timeslot
+        // Stop looping one before the end, last timeslot can't calculate a cost
+        for (int i = 0; i < timeSlots.size() - 1; i++){
+            TimeSlot timeSlot = timeSlots.get(i);
+            // Loop through each student in this timeslot
+            for (int studentId : timeSlot.getAllSIDInTimeSlot().stream().filter(e -> studentsToCalculate.contains(e)).toList()){
+                // Loop through the following timeslots
+                for (int j = i + 1; j < timeSlots.size(); j++){
+                    // If timeslot has the same student as the timeslot above, calculate cost
+                    if (timeSlots.get(j).getAllSIDInTimeSlot().stream().filter(e -> studentsToCalculate.contains(e)).anyMatch(e -> e == studentId))
+                        cost += Helper.DistanceToCost(j - i);
                 }
             }
         }
         return cost;
     }
-    private double costAfter(){
-        int cost = 0;
-        Map.Entry<Integer, Integer> tuple = indexForTimeSlots();
-        int startIndex = tuple.getKey();
-        int endIndex = tuple.getValue();
-        // If timeslots next to each other
-        // IMPORTANT, LOOPS ARE WORKING WITH INDEXES SO WE DON'T use -1 and < BUT <=
-        if (endIndex - startIndex == 1){
-            TimeSlot timeSlot = timeSlots.get(startIndex);
-            TimeSlot timeSlotNext = timeSlots.get(endIndex);
-            for (int studentId : timeSlot.getAllSIDInTimeSlot()){
-                // If timeslot has the same student as the timeslot above, calculate cost
-                if (timeSlotNext.getAllSIDInTimeSlot().stream().anyMatch(e -> e == studentId))
-                    cost += Helper.DistanceToCost(endIndex - startIndex);
-            }
-        } else {
-            // Loop through each timeslot
-            // Stop looping one before the end, last timeslot can't calculate a cost
-            for (int i = startIndex; i < endIndex; i++){
-                TimeSlot timeSlot = timeSlots.get(i);
-                // Loop through each student in this timeslot
-                for (int studentId : timeSlot.getAllSIDInTimeSlot()){
-                    // Loop through the following timeslots
-                    for (int j = i + 1; j <= endIndex; j++){
-                        // If timeslot has the same student as the timeslot above, calculate cost
-                        if (timeSlots.get(j).getAllSIDInTimeSlot().stream().anyMatch(e -> e == studentId))
-                            cost += Helper.DistanceToCost(j - i);
-                    }
-                }
-            }
-        }
 
-        return cost;
-    }
-
-    private Map.Entry<Integer, Integer> indexForTimeSlots(){
-        OptionalInt optionalIndexTimeSlotOne = IntStream.range(0, timeSlots.size()).filter(i -> timeSlots.get(i).getID() == timeSlotIdOrigin).findFirst();
-        OptionalInt optionalIndexTimeSlotTwo = IntStream.range(0, timeSlots.size()).filter(i -> timeSlots.get(i).getID() == timeSlotIdDestination).findFirst();
-
-        if (optionalIndexTimeSlotOne.isEmpty() || optionalIndexTimeSlotTwo.isEmpty())
-            throw new RuntimeException("Index of timeslot not found");
-        int indexStart = optionalIndexTimeSlotOne.getAsInt();
-        int indexEnd = optionalIndexTimeSlotTwo.getAsInt();
-        if (indexStart > indexEnd){
-            int indexTemp = indexStart;
-            indexStart = indexEnd;
-            indexEnd = indexTemp;
-        }
-
-        return new AbstractMap.SimpleEntry<>(indexStart, indexEnd);
-    }
     private void findExam(){
         // SwapExams
         Random random = new Random();
