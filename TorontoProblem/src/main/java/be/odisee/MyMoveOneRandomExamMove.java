@@ -54,7 +54,7 @@ public class MyMoveOneRandomExamMove extends Move {
         // Stop looping one before the end, last timeslot can't calculate a cost
         for (int i = 0; i < timeSlots.size() - 1; i++){
             TimeSlot timeSlot = timeSlots.get(i);
-            // Loop through each student in this timeslot
+            // Loop through each student in exam
             for (int studentId : timeSlot.getAllSIDInTimeSlot().stream().filter(e -> studentsToCalculate.contains(e)).toList()){
                 // Loop through the following timeslots
                 for (int j = i + 1; j < timeSlots.size(); j++){

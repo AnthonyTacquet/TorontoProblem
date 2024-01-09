@@ -11,11 +11,12 @@ import java.util.HashMap;
 
 public class Main {
     public static void main(String[] args) {
-        DataReader parser = new DataReader("benchmarks/sta-f-83.crs", "benchmarks/sta-f-83.stu");
-        // DataReader parser = new DataReader("benchmarks/lse-f-91.crs", "benchmarks/lse-f-91.stu");
-        SearchAlgorithm steepestDescent = new SteepestDescent(parser);
-        //SearchAlgorithm lateAcceptance = new LateAcceptanceStrategy(parser);
-        //SearchAlgorithm simulatedAnnealing = new SimulatedAnnealing(parser);
-        steepestDescent.execute(1500); // Original: 1000
+        //DataReader parser = new DataReader("benchmarks/sta-f-83.crs", "benchmarks/sta-f-83.stu");
+        DataReader parser = new DataReader("benchmarks/car-s-91.crs", "benchmarks/car-s-91.stu"); // Takes long
+        //DataReader parser = new DataReader("benchmarks/hec-s-92.crs", "benchmarks/hec-s-92.stu");
+        //SearchAlgorithm algortihm = new SteepestDescent(parser);
+        //SearchAlgorithm algortihm = new LateAcceptanceStrategy(parser);
+        SearchAlgorithm algortihm = new SimulatedAnnealing(parser);
+        algortihm.execute(2000); // Original: 1000
     }
 }

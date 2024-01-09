@@ -46,6 +46,7 @@ public class MySwapTwoRandomExamsMove extends Move {
         return newCost;
     }
 
+    // Way faster than absolute evaluation
     private double calculateCost(){
         int cost = 0;
         Set<Integer> studentsToCalculate = new HashSet<>();
@@ -56,9 +57,9 @@ public class MySwapTwoRandomExamsMove extends Move {
         // Stop looping one before the end, last timeslot can't calculate a cost
         for (int i = 0; i < timeSlots.size() - 1; i++){
             TimeSlot timeSlot = timeSlots.get(i);
-            // Loop through each student in this timeslot
+            // Loop through each student in exam
             for (int studentId : timeSlot.getAllSIDInTimeSlot().stream().filter(e -> studentsToCalculate.contains(e)).toList()){
-                // Loop through the following timeslots
+                // Loop through the following timeslots, timeslots after 'timeslot' variable
                 for (int j = i + 1; j < timeSlots.size(); j++){
                     // If timeslot has the same student as the timeslot above, calculate cost
                     if (timeSlots.get(j).getAllSIDInTimeSlot().stream().filter(e -> studentsToCalculate.contains(e)).anyMatch(e -> e == studentId))
